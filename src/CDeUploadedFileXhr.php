@@ -10,12 +10,50 @@ use dekuan\delib\CLib;
  */
 class CDeUploadedFileXhr extends CDeUploadedFileFieldName
 {
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 	}
 
-	function saveUploadFile( $sDstFilePath = null, & $vStreamData = null )
+	public function getTempFullFilename()
+	{
+		$sRet		= null;
+		$nRealSize	= 0;
+		$sTmpFFN	= null;
+		$fpTemp		= null;
+		$fpInput	= null;
+
+		//	...
+		$sTmpFFN	= tempnam( sys_get_temp_dir(), "defileuploader-" );
+		if ( CLib::IsExistingString( $sTmpFFN ) )
+		{
+			$fpTemp	= fopen( $sTmpFFN, "w" );
+			if ( $fpTemp )
+			{
+				$fpInput = fopen( "php://input", "r" );
+				if ( $fpInput )
+				{
+					$nRealSize = stream_copy_to_stream( $fpInput, $fpTemp );
+					fclose( $fpInput );
+
+					if ( $nRealSize > 0 && $nRealSize == $this->getSize() )
+					{
+						//
+						//	yes, it's okay now
+						//
+						$sRet = $sTmpFFN;
+					}
+				}
+
+				fclose( $fpTemp );
+				$fpTemp = null;
+			}
+		}
+
+		return $sRet;
+	}
+
+	public function saveUploadFile( $sDstFilePath = null, & $vStreamData = null )
 	{
 		//
 		//	sDstFilePath	- the destination filename, values:( full filename or null )
@@ -93,7 +131,7 @@ class CDeUploadedFileXhr extends CDeUploadedFileFieldName
 		return $nRet;
 	}
 
-	function getName()
+	public function getName()
 	{
 		$sRet	= "";
 
@@ -105,7 +143,7 @@ class CDeUploadedFileXhr extends CDeUploadedFileFieldName
 		return $sRet;
 	}
 
-	function getSize()
+	public function getSize()
 	{
 		$nRet	= 0;
 
