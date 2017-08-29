@@ -64,7 +64,7 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 	var $m_nLmtMaxSize	= 0;		//	10485760
 	var $m_bOverwrite	= true;		//	overwrite if file exists
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 
@@ -113,6 +113,12 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 	{
 		return ( DEFILEUPLOADER_SUCCESS == $nErrorCode );
 	}
+
+	public function getTempFullFilename()
+	{
+		return $this->m_oFile->getTempFullFilename();
+	}
+
 	public function saveUploadFile( $sDstFilePath = null, & $vStreamData = null )
 	{
 		//

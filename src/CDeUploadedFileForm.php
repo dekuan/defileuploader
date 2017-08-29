@@ -10,12 +10,28 @@ use dekuan\delib\CLib;
  */
 class CDeUploadedFileForm extends CDeUploadedFileFieldName
 {
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 	}
 
-	function saveUploadFile( $sDstFilePath = null, & $vStreamData = null )
+	public function getTempFullFilename()
+	{
+		$sRet	= null;
+
+		if ( is_array( $_FILES ) &&
+			is_string( $this->m_sFieldName ) &&
+			array_key_exists( $this->m_sFieldName, $_FILES ) &&
+			is_array( $_FILES[ $this->m_sFieldName ] ) &&
+			array_key_exists( 'tmp_name', $_FILES[ $this->m_sFieldName ] ) )
+		{
+			$sRet = $_FILES[ $this->m_sFieldName ][ 'tmp_name' ];	
+		}
+		
+		return $sRet;
+	}
+
+	public function saveUploadFile( $sDstFilePath = null, & $vStreamData = null )
 	{
 		//
 		//	sDstFilePath	- the destination filename, values:( full filename or null )
@@ -67,7 +83,7 @@ class CDeUploadedFileForm extends CDeUploadedFileFieldName
 		return $nRet;
 	}
 
-	function getName()
+	public function getName()
 	{
 		$sRet	= "";
 
@@ -78,7 +94,7 @@ class CDeUploadedFileForm extends CDeUploadedFileFieldName
 
 		return $sRet;
 	}
-	function getSize()
+	public function getSize()
 	{
 		$nRet	= 0;
 

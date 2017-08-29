@@ -9,7 +9,7 @@ class CDeUploadedFileFieldName
 {
 	var $m_sFieldName	= DEFILEUPLOADER_FIELDNAME;	//	<input type=file name="qqfile" ...
 
-	function __construct()
+	public function __construct()
 	{
 		$this->m_sFieldName = DEFILEUPLOADER_FIELDNAME;
 	}
