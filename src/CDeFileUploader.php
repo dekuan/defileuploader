@@ -113,7 +113,7 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 
 	public function getTempFullFilename()
 	{
-		return $this->m_oFile->getTempFullFilename();
+		return $this->_isValidLmtMaxSize() ? $this->m_oFile->getTempFullFilename() : null;
 	}
 
 	public function saveUploadFile( $sDstFilePath = null, & $vStreamData = null )
