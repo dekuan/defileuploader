@@ -75,18 +75,15 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 		$this->m_nLmtMaxSize		= 500 * 1024;	//	500K
 		$this->m_bOverwrite		= true;
 
-		if ( $this->_isValidLmtMaxSize() )
+		if ( isset( $_FILES[ $this->m_sFieldName ] ) )
 		{
-			if ( isset( $_FILES[ $this->m_sFieldName ] ) )
-			{
-				$this->m_oFile = new CDeUploadedFileForm();
-				$this->m_oFile->setFieldName( $this->m_sFieldName );
-			}
-			else if ( isset( $_GET[ $this->m_sFieldName ] ) )
-			{
-				$this->m_oFile = new CDeUploadedFileXhr();
-				$this->m_oFile->setFieldName( $this->m_sFieldName );
-			}
+			$this->m_oFile = new CDeUploadedFileForm();
+			$this->m_oFile->setFieldName( $this->m_sFieldName );
+		}
+		else if ( isset( $_GET[ $this->m_sFieldName ] ) )
+		{
+			$this->m_oFile = new CDeUploadedFileXhr();
+			$this->m_oFile->setFieldName( $this->m_sFieldName );
 		}
 	}
 
@@ -146,6 +143,10 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 		{
 			//	No files were uploaded.
 			return DEFILEUPLOADER_ERROR_NO_FILES;
+		}
+		if ( ! $this->_isValidLmtMaxSize() )
+		{
+			return DEFILEUPLOADER_ERROR_TOO_LARGE;
 		}
 		if ( $this->m_oFile->getSize() > $this->m_nLmtMaxSize )
 		{
