@@ -2,6 +2,7 @@
 namespace dekuan\defileuploader;
 
 use dekuan\delib\CLib;
+use dekuan\vdata\CConst;
 
 
 /***
@@ -29,6 +30,9 @@ use dekuan\delib\CLib;
  */
 define( 'DEFILEUPLOADER_FIELDNAME',			'defile' );	//	<input type=file name="defile" ...
 
+/**
+ *	error ids
+ */
 define( 'DEFILEUPLOADER_SUCCESS',			 0 );
 define( 'DEFILEUPLOADER_ERROR_UNKNOWN',			-1 );
 define( 'DEFILEUPLOADER_FAILED_SAVE_BY_FORM',		-100 );
@@ -49,13 +53,12 @@ define( 'DEFILEUPLOADER_ERROR_DIR_UNWRITABLE',		-1600 );	//	Upload directory isn
 
 
 
-
-
-
 /**
- *	CDeFileUploader
+ *	Class CDeFileUploader
+ * 
+ *	@package dekuan\defileuploader
  *	Created by XING @ 11:56 AM August 28, 2017
- **/
+ */
 class CDeFileUploader extends CDeUploadedFileFieldName
 {
 	var $m_oFile		= null;
@@ -64,6 +67,10 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 	var $m_nLmtMaxSize	= 0;		//	10485760
 	var $m_bOverwrite	= true;		//	overwrite if file exists
 
+
+	/**
+	 *	CDeFileUploader constructor.
+	 */
 	public function __construct()
 	{
 		parent::__construct();
@@ -87,36 +94,69 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 		}
 	}
 
+	/**
+	 * 	set allow file extensions list
+	 * 
+	 *	@param $arrAllowFileExt
+	 */
 	public function setAllowFileExt( $arrAllowFileExt )
 	{
 		$this->m_arrAllowFileExt = $arrAllowFileExt;
 	}
+
+	/**
+	 *	set image extensions list
+	 * 
+	 *	@param $arrImageExt
+	 */
 	public function setImageExt( $arrImageExt )
 	{
 		$this->m_arrImageExt = $arrImageExt;
 	}
 
+	/**
+	 *	set limitation of max size
+	 *
+	 *	@param $nLmtMaxSize
+	 */
 	public function setLmtMaxSize( $nLmtMaxSize )
 	{
 		//	in bytes
 		$this->m_nLmtMaxSize = $nLmtMaxSize;
 	}
+
+	/**
+	 *	set whether overwrite
+	 * 
+	 *	@param $bOverwrite
+	 */
 	public function setOverwrite( $bOverwrite )
 	{
 		$this->m_bOverwrite = $bOverwrite;
 	}
 
+	/**
+	 *	get if upload successfully
+	 * 
+	 *	@param $nErrorCode
+	 *	@return bool
+	 */
 	public function isUploadSucc( $nErrorCode )
 	{
 		return ( DEFILEUPLOADER_SUCCESS == $nErrorCode );
 	}
 
+	/**
+	 *	get temp full filename
+	 * 
+	 *	@return null | string
+	 */
 	public function getTempFullFilename()
 	{
 		if ( $this->m_oFile &&
 			$this->_isValidLmtMaxSize() && $this->m_oFile->getSize() <= $this->m_nLmtMaxSize )
 		{
-			return $this->m_oFile->getTempFullFilename();	
+			return $this->m_oFile->getTempFullFilename();
 		}
 		else
 		{
@@ -124,6 +164,48 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 		}
 	}
 
+	/**
+	 * 	get temp full filename ex
+	 * 
+	 *	@param	string	$sFullFilenameReturn
+	 *	@return int
+	 */
+	public function getTempFullFilenameEx( & $sFullFilenameReturn = null )
+	{
+		if ( ! $this->m_oFile )
+		{
+			//	No files were uploaded.
+			return DEFILEUPLOADER_ERROR_NO_FILES;
+		}
+		if ( ! $this->_isValidLmtMaxSize() )
+		{
+			return DEFILEUPLOADER_ERROR_TOO_LARGE;
+		}
+		if ( $this->m_oFile->getSize() > $this->m_nLmtMaxSize )
+		{
+			//	File is too large
+			return DEFILEUPLOADER_ERROR_TOO_LARGE;
+		}
+		if ( 0 == $this->m_oFile->getSize() )
+		{
+			//	File is empty
+			return DEFILEUPLOADER_ERROR_EMPTY_FILE;
+		}
+
+		//	...
+		$sFullFilenameReturn = $this->m_oFile->getTempFullFilename();
+		
+		//	...
+		return CConst::ERROR_SUCCESS;
+	}
+
+	/**
+	 *	save upload file
+	 * 
+	 *	@param	string	$sDstFilePath
+	 *	@param	string	$vStreamData
+	 *	@return int
+	 */
 	public function saveUploadFile( $sDstFilePath = null, & $vStreamData = null )
 	{
 		//
@@ -197,6 +279,9 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 		return $nRet;
 	}
 
+	/**
+	 *	@return	string
+	 */
 	public function getName()
 	{
 		if ( $this->m_oFile )
@@ -208,6 +293,10 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 			return null;
 		}
 	}
+
+	/**
+	 *	@return string
+	 */
 	public function getExt()
 	{
 		//	RETURN	'jpg', 'png', 'exe', ...
@@ -224,6 +313,10 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 
 		return $sRet;
 	}
+
+	/**
+	 *	@return bool
+	 */
 	public function isImageExt()
 	{
 		$bRet		= false;
@@ -244,6 +337,9 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 	//	Private
 	//
 
+	/**
+	 *	@return bool
+	 */
 	private function _isValidLmtMaxSize()
 	{
 		$bRet	= false;
@@ -262,6 +358,10 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 		return $bRet;
 	}
 
+	/**
+	 *	@param	string	$sString
+	 *	@return int
+	 */
 	private function _toBytes( $sString )
 	{
 		$nRet	= 0;
@@ -285,6 +385,10 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 		return $nRet;
 	}
 
+	/**
+	 *	@param	string	$sDstFilePath
+	 *	@return	bool
+	 */
 	private function _isDirectoryWritable( $sDstFilePath )
 	{
 		$bRet		= false;
@@ -308,6 +412,10 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 		return $bRet;
 	}
 
+	/**
+	 *	@param	string	$sDstFilePath
+	 *	@return string
+	 */
 	private function _getFinalDstFilePath( $sDstFilePath )
 	{
 		$sRet		= $sDstFilePath;
@@ -347,6 +455,9 @@ class CDeFileUploader extends CDeUploadedFileFieldName
 		return $sRet;
 	}
 
+	/**
+	 *	@return bool
+	 */
 	private function _isAllowedFile()
 	{
 		//	DEFILEUPLOADER_ERROR_NOT_ALLOWED
