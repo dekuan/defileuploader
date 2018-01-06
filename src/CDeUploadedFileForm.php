@@ -5,8 +5,11 @@ use dekuan\delib\CLib;
 
 
 /**
+ *	Class CDeUploadedFileForm
  *	Handle file uploads via regular form post (uses the $_FILES array)
  * 	Created by XING @ 11:56 AM August 28, 2017
+ * 
+ *	@package dekuan\defileuploader
  */
 class CDeUploadedFileForm extends CDeUploadedFileFieldName
 {
@@ -15,6 +18,9 @@ class CDeUploadedFileForm extends CDeUploadedFileFieldName
 		parent::__construct();
 	}
 
+	/**
+	 *	@return string
+	 */
 	public function getTempFullFilename()
 	{
 		$sRet	= null;
@@ -31,6 +37,11 @@ class CDeUploadedFileForm extends CDeUploadedFileFieldName
 		return $sRet;
 	}
 
+	/**
+	 *	@param	null $sDstFilePath
+	 *	@param	null $vStreamData
+	 *	@return int
+	 */
 	public function saveUploadFile( $sDstFilePath = null, & $vStreamData = null )
 	{
 		//
